@@ -372,20 +372,20 @@ end
 -- ConfiguraÃ§Ã£o da UI Compacta (mantive estrutura original)
 -- ======================
 local function CreateAdminUI()
+    -- usa getGuiParent para compatibilidade
     local parent = getGuiParent("CoqAdminUI")
     if parent:FindFirstChild("CoqAdminUI") then return end
 
     local screen = Instance.new("ScreenGui")
-    screen.Name = "CoqAdminUI"
+    screen.Name = "CoqAdminUI"  -- nome consistente com DestroyAdminUI
     screen.ResetOnSpawn = false
     screen.Parent = parent
 
-    -- Painel principal
     local panel = Instance.new("Frame", screen)
     panel.Size = UDim2.new(0, 280, 0, 490)
-    panel.Position = UDim2.new(0.5, -140, -1, -245) -- entra animado
+    panel.Position = UDim2.new(0.5, -160, -1, -225) -- entra animado
     panel.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-    panel.BackgroundTransparency = 0.4
+    panel.BackgroundTransparency = 0.35 -- fundo preto translúcido
     panel.Active = true
     panel.Draggable = true
 
@@ -393,26 +393,28 @@ local function CreateAdminUI()
     panelCorner.CornerRadius = UDim.new(0, 10)
 
     local panelStroke = Instance.new("UIStroke", panel)
-    panelStroke.Thickness = 2
-    panelStroke.Color = Color3.fromRGB(255, 255, 255) -- borda branca
+    panelStroke.Thickness = 3
+    panelStroke.Color = hsvToRgb(0)
     panelStroke.Transparency = 0
+    startRGBLoopOnStroke(panelStroke, 0.7)
 
-    -- Cabeçalho
+    local fullSz = panel.Size
     local header = Instance.new("Frame", panel)
     header.Size = UDim2.new(1, 0, 0, 36)
     header.BackgroundTransparency = 1
 
     local title = Instance.new("TextLabel", header)
-    title.Text = "Nick Hub"
+    title.Text = "Nick Hub"  -- título visual alterado conforme pedido
     title.Size = UDim2.new(1, -70, 1, 0)
     title.Position = UDim2.new(0, 10, 0, 0)
     title.BackgroundTransparency = 1
-    title.TextColor3 = Color3.fromRGB(255, 255, 255)
-    title.Font = Enum.Font.SourceSansBold -- Frondoka One não é nativa, será preciso ter via CustomFont
+    title.TextColor3 = Color3.new(1, 1, 1)
+    title.Font = Enum.Font.GothamBold
     title.TextSize = 18
     title.TextXAlignment = Enum.TextXAlignment.Left
 
-    -- Container das abas
+    -- removido botões de fechar/minimizar do header (pedido). fechamento via botão externo.
+
     local tabContainer = Instance.new("Frame", panel)
     tabContainer.Size = UDim2.new(1, 0, 0, 30)
     tabContainer.Position = UDim2.new(0, 0, 0, 36)
@@ -423,36 +425,48 @@ local function CreateAdminUI()
     tabLayout.SortOrder = Enum.SortOrder.LayoutOrder
     tabLayout.Padding = UDim.new(0, 5)
 
-    -- Corpo do painel
     local body = Instance.new("Frame", panel)
     body.Size = UDim2.new(1, 0, 1, -70)
     body.Position = UDim2.new(0, 0, 0, 70)
     body.BackgroundTransparency = 1
 
-    -- Frames de conteúdo
-    local function createScrollingFrame(parent)
-        local frame = Instance.new("ScrollingFrame", parent)
-        frame.Size = UDim2.new(1, 0, 1, 0)
-        frame.BackgroundTransparency = 0.9
-        frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-        frame.BorderSizePixel = 0
-        frame.ScrollBarImageColor3 = Color3.fromRGB(255, 255, 255)
-        frame.ScrollBarThickness = 6
+    local minimized = false
 
-        local layout = Instance.new("UIListLayout", frame)
-        layout.Padding = UDim.new(0, 8)
-        layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-        layout.SortOrder = Enum.SortOrder.LayoutOrder
+    -- frames de conteúdo (mantidos)
+    local cmdFrame = Instance.new("ScrollingFrame", body)
+    cmdFrame.Size = UDim2.new(1, 0, 1, 0)
+    cmdFrame.BackgroundTransparency = 1
+    cmdFrame.BorderSizePixel = 0
+    cmdFrame.ScrollBarImageColor3 = Color3.fromRGB(150, 105, 180)
+    cmdFrame.ScrollBarThickness = 6
+    local cmdListLayout = Instance.new("UIListLayout", cmdFrame)
+    cmdListLayout.Padding = UDim.new(0, 8)
+    cmdListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+    cmdListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 
-        return frame
-    end
-
-    local cmdFrame = createScrollingFrame(body)
-    local avatarFrame = createScrollingFrame(body)
+    local avatarFrame = Instance.new("ScrollingFrame", body)
+    avatarFrame.Size = UDim2.new(1, 0, 1, 0)
+    avatarFrame.BackgroundTransparency = 1
+    avatarFrame.BorderSizePixel = 0
+    avatarFrame.ScrollBarImageColor3 = Color3.fromRGB(150, 105, 180)
+    avatarFrame.ScrollBarThickness = 6
     avatarFrame.Visible = false
-    local terrorFrame = createScrollingFrame(body)
+    local avatarListLayout = Instance.new("UIListLayout", avatarFrame)
+    avatarListLayout.Padding = UDim.new(0, 8)
+    avatarListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+    avatarListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+
+    local terrorFrame = Instance.new("ScrollingFrame", body)
+    terrorFrame.Size = UDim2.new(1, 0, 1, 0)
+    terrorFrame.BackgroundTransparency = 1
+    terrorFrame.BorderSizePixel = 0
+    terrorFrame.ScrollBarImageColor3 = Color3.fromRGB(150, 105, 180)
+    terrorFrame.ScrollBarThickness = 6
     terrorFrame.Visible = false
-end
+    local terrorListLayout = Instance.new("UIListLayout", terrorFrame)
+    terrorListLayout.Padding = UDim.new(0, 8)
+    terrorListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+    terrorListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 
     -- tabs (aplicar efeitos)
     local btnTabCmds = Instance.new("TextButton", tabContainer)
